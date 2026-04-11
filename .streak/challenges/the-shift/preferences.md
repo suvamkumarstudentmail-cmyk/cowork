@@ -44,7 +44,7 @@ All 18 blocks with times and priorities:
 
 - **Environment:** Dedicated study desk; blackout curtains for nap and sleep; 5000K lights for study window (9:45 AM–1:00 PM and 9:45 PM–5:00 AM); 2700K/red light for wind-down (5:00 AM onward)
 - **Reward:** Completing all 6 study blocks = full check-in credit; Iron Session = physical streak maintained
-- **Accountability:** Daily Streak check-in; iOS reminders via Claude scheduled tasks; calendar via the-shift-reminders.ics
+- **Accountability:** Daily Streak check-in; remote triggers via GitHub Actions (`.github/workflows/the-shift-reminders.yml`) firing at each block's IST time; calendar via `.streak/the-shift-reminders.ics`
 
 ---
 
