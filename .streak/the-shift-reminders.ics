@@ -1,0 +1,261 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//streak//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:The Shift — Daily Protocol
+X-WR-TIMEZONE:Asia/Kolkata
+
+BEGIN:VEVENT
+UID:the-shift-block-01-morning-launch@streak
+DTSTART:20260411T090000
+DTEND:20260411T094500
+SUMMARY:🌅 The Shift — Morning Launch
+DESCRIPTION:Drink two glasses of water\, expose eyes to 5000K+ light\, take Morning Stack (B12 sublingually\, Nootropic before food\, Omega-3 with breakfast).\n\nPriority: Medium
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Morning Launch — water\, light\, supplements
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-02-study-block-1-2@streak
+DTSTART:20260411T094500
+DTEND:20260411T130000
+SUMMARY:📚 The Shift — Study Block 1+2 (90 + 10 + 90 min)
+DESCRIPTION:Block 1 (9:45–11:15): Active recall & light consolidation\, optionally with matcha.\n10-min break (11:15–11:25).\nBlock 2 (11:25–1:00 PM): Moderate study — practice problems\, concept mapping.\n\nPriority: High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Study Block 1+2 starting — 90+10+90 min combined
+TRIGGER:-PT10M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-03-detox-lunch@streak
+DTSTART:20260411T130000
+DTEND:20260411T140000
+SUMMARY:🥗 The Shift — Digital Detox Lunch
+DESCRIPTION:Eat a high-protein meal while stepping entirely away from the desk and all screens.\n\nPriority: Medium
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Digital Detox Lunch — step away from all screens
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-04-biphasic-nap@streak
+DTSTART:20260411T140000
+DTEND:20260411T153000
+SUMMARY:😴 The Shift — Biphasic Nap (90 min)
+DESCRIPTION:90-minute target sleep in a blackout environment with earplugs.\n\nPriority: High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Biphasic Nap — blackout room\, earplugs
+TRIGGER:-PT10M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-05-iron-session@streak
+DTSTART:20260411T170000
+DTEND:20260411T183000
+SUMMARY:🏋️ The Shift — Iron Session (PPL Training)
+DESCRIPTION:Complete your PPL resistance training workout. This is the strict daily cut-off for any caffeine.\n\nPriority: Ultra High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Iron Session — PPL workout + CAFFEINE CUT-OFF NOW
+TRIGGER:-PT5M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-06-dinner-dose2@streak
+DTSTART:20260411T183000
+DTEND:20260411T191500
+SUMMARY:🍽️ The Shift — Dinner & Dose 2
+DESCRIPTION:Eat a high-protein dinner and take the second Omega-3 capsule.\n\nPriority: Medium
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Dinner & Dose 2 — high-protein + Omega-3
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-07-battle-planning@streak
+DTSTART:20260411T191500
+DTEND:20260411T214500
+SUMMARY:📝 The Shift — Battle Planning
+DESCRIPTION:Decompress completely\, then write down tonight's exact target problems on physical paper.\n\nPriority: High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Battle Planning — paper and pen\, define tonight's targets
+TRIGGER:-PT10M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-08-environment-lock-in@streak
+DTSTART:20260411T214500
+DTEND:20260411T220000
+SUMMARY:🔒 The Shift — Environment Lock-in
+DESCRIPTION:Switch all lights to 5000K cool white\, put your phone in a drawer\, and clear the desk.\n\nPriority: High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Environment Lock-in — 5000K on\, phone in drawer\, clear desk
+TRIGGER:-PT10M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-09-study-block-3@streak
+DTSTART:20260411T220000
+DTEND:20260411T233000
+SUMMARY:🔥 The Shift — Study Block 3: Heavy Lifting
+DESCRIPTION:90 minutes of active output on your hardest material — complex derivations\, actuarial theory. Peak window.\n\nPriority: Ultra High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Study Block 3 — HEAVY LIFTING: hardest material now
+TRIGGER:-PT5M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-10-break-1@streak
+DTSTART:20260411T233000
+DTEND:20260411T234500
+SUMMARY:🧊 The Shift — Break 1
+DESCRIPTION:Stand\, stretch\, and drink ice water. Keep the 5000K lights on.\n\nPriority: High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Break 1 — stand\, stretch\, ice water
+TRIGGER:-PT10M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-11-study-block-4@streak
+DTSTART:20260411T234500
+DTEND:20260412T011500
+SUMMARY:🔄 The Shift — Study Block 4: Context Switch
+DESCRIPTION:90 minutes of study in a completely different domain from Block 3. Full cognitive context switch.\n\nPriority: High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Study Block 4 — CONTEXT SWITCH: different domain
+TRIGGER:-PT10M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-12-mid-shift-break@streak
+DTSTART:20260412T011500
+DTEND:20260412T014500
+SUMMARY:🚶 The Shift — Mid-Shift Break
+DESCRIPTION:Leave the desk completely. Optional light protein snack — no carbs or sugar.\n\nPriority: High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Mid-Shift Break — leave the desk completely
+TRIGGER:-PT10M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-13-study-block-5@streak
+DTSTART:20260412T014500
+DTEND:20260412T031500
+SUMMARY:⚡ The Shift — Study Block 5: The Grind
+DESCRIPTION:90 minutes of highly active output — past paper questions\, diagrams\, coding — to fight off adenosine buildup.\n\nPriority: High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Study Block 5 — THE GRIND: active output\, past papers
+TRIGGER:-PT10M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-14-cold-reset@streak
+DTSTART:20260412T031500
+DTEND:20260412T033000
+SUMMARY:💧 The Shift — Cold Reset
+DESCRIPTION:Splash cold water on your face and pace the room for 5 minutes.\n\nPriority: High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Cold Reset — cold water face splash\, pace 5 min
+TRIGGER:-PT10M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-15-study-block-6@streak
+DTSTART:20260412T033000
+DTEND:20260412T050000
+SUMMARY:📖 The Shift — Study Block 6: Closeout
+DESCRIPTION:90 minutes of low-friction review. Spend the final 15 minutes writing tomorrow's exact problem list on paper.\n\nPriority: High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Study Block 6 — CLOSEOUT: review + write tomorrow's list
+TRIGGER:-PT10M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-16-light-shift@streak
+DTSTART:20260412T050000
+DTEND:20260412T053000
+SUMMARY:🌙 The Shift — Light Shift
+DESCRIPTION:Turn off all 5000K lights\, switch to 2700K/red light\, and take two Magnesium Bisglycinate tablets.\n\nPriority: High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Light Shift — 2700K/red light on\, Magnesium Bisglycinate x2
+TRIGGER:-PT10M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-17-digital-sunset@streak
+DTSTART:20260412T053000
+DTEND:20260412T060000
+SUMMARY:📵 The Shift — Digital Sunset
+DESCRIPTION:Turn off the PC\, put the phone away\, and read a physical book for 30 minutes.\n\nPriority: High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Digital Sunset — PC off\, phone away\, physical book
+TRIGGER:-PT10M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:the-shift-block-18-post-study-sleep@streak
+DTSTART:20260412T060000
+DTEND:20260412T090000
+SUMMARY:🛌 The Shift — Post-Study Sleep (3-hour target)
+DESCRIPTION:Get into bed for a 3-hour target sleep in a cool\, blackout room with earplugs.\n\nPriority: High
+RRULE:FREQ=DAILY;COUNT=30
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Post-Study Sleep — blackout\, cool room\, earplugs
+TRIGGER:-PT10M
+END:VALARM
+END:VEVENT
+
+END:VCALENDAR

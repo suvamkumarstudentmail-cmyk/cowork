@@ -1,0 +1,9 @@
+# Binary / cache files
+zighiF2N
+
+# Local Claude settings
+.claude/settings.local.json
+
+# OS
+.DS_Store
+Thumbs.db
