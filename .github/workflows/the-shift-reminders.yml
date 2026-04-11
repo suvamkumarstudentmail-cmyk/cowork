@@ -2,8 +2,15 @@ name: The Shift — Remote Triggers
 
 # Remote triggers for all 18 blocks of The Shift protocol.
 # All times are UTC (IST = UTC+5:30).
-# To enable Telegram notifications, add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID
-# as repository secrets (Settings → Secrets → Actions).
+#
+# iOS NOTIFICATIONS (Claude app):
+#   1. Install the free ntfy.sh app on your iPhone (App Store: "ntfy")
+#   2. Add repository secret NTFY_TOPIC with any unique topic string (e.g. "the-shift-suvam")
+#   3. In the ntfy app: tap + → enter your topic → Subscribe
+#   4. Tap any notification → it opens Claude.ai in Safari
+#
+# TELEGRAM (optional alternative):
+#   Add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID as repository secrets.
 
 on:
   schedule:
@@ -116,8 +123,28 @@ jobs:
           echo "${EMOJI} Block ${BLOCK} — ${TITLE} (${TIME} IST)"
           echo "${DESC}"
 
+      - name: Send iOS push notification (ntfy → Claude.ai)
+        if: ${{ secrets.NTFY_TOPIC != '' }}
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          BLOCK="${{ steps.block.outputs.block }}"
+          EMOJI="${{ steps.block.outputs.emoji }}"
+          TITLE="${{ steps.block.outputs.title }}"
+          TIME="${{ steps.block.outputs.time }}"
+          DESC="${{ steps.block.outputs.desc }}"
+
+          curl -s -X POST "https://ntfy.sh/${NTFY_TOPIC}" \
+            -H "Title: ${EMOJI} Block ${BLOCK} — ${TITLE}" \
+            -H "Message: ${TIME} IST · ${DESC}" \
+            -H "Priority: high" \
+            -H "Tags: bell,the-shift" \
+            -H "Click: https://claude.ai" \
+            -d "${DESC}" \
+            -o /dev/null
+
       - name: Send Telegram notification
-        if: ${{ env.TELEGRAM_BOT_TOKEN != '' }}
+        if: ${{ secrets.TELEGRAM_BOT_TOKEN != '' }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
