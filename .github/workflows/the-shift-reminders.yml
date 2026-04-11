@@ -1,0 +1,138 @@
+name: The Shift — Remote Triggers
+
+# Remote triggers for all 18 blocks of The Shift protocol.
+# All times are UTC (IST = UTC+5:30).
+# To enable Telegram notifications, add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID
+# as repository secrets (Settings → Secrets → Actions).
+
+on:
+  schedule:
+    - cron: '30 3 * * *'   # Block 01 — Morning Launch        (9:00 AM IST)
+    - cron: '15 4 * * *'   # Block 02 — Study Block 1+2       (9:45 AM IST)
+    - cron: '30 7 * * *'   # Block 03 — Digital Detox Lunch   (1:00 PM IST)
+    - cron: '30 8 * * *'   # Block 04 — Biphasic Nap          (2:00 PM IST)
+    - cron: '30 11 * * *'  # Block 05 — Iron Session          (5:00 PM IST)
+    - cron: '0 13 * * *'   # Block 06 — Dinner & Dose 2       (6:30 PM IST)
+    - cron: '45 13 * * *'  # Block 07 — Battle Planning       (7:15 PM IST)
+    - cron: '15 16 * * *'  # Block 08 — Environment Lock-in   (9:45 PM IST)
+    - cron: '30 16 * * *'  # Block 09 — Study Block 3         (10:00 PM IST)
+    - cron: '0 18 * * *'   # Block 10 — Break 1               (11:30 PM IST)
+    - cron: '15 18 * * *'  # Block 11 — Study Block 4         (11:45 PM IST)
+    - cron: '45 19 * * *'  # Block 12 — Mid-Shift Break       (1:15 AM IST)
+    - cron: '15 20 * * *'  # Block 13 — Study Block 5         (1:45 AM IST)
+    - cron: '45 21 * * *'  # Block 14 — Cold Reset            (3:15 AM IST)
+    - cron: '0 22 * * *'   # Block 15 — Study Block 6         (3:30 AM IST)
+    - cron: '30 23 * * *'  # Block 16 — Light Shift           (5:00 AM IST)
+    - cron: '0 0 * * *'    # Block 17 — Digital Sunset        (5:30 AM IST)
+    - cron: '30 0 * * *'   # Block 18 — Post-Study Sleep      (6:00 AM IST)
+  workflow_dispatch:
+    inputs:
+      block:
+        description: 'Block number to trigger manually (1–18), leave blank for auto-detect'
+        required: false
+        type: string
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Identify block from schedule time
+        id: block
+        run: |
+          HOUR=$(date -u +%H)
+          MIN=$(date -u +%M)
+
+          # Manual override from workflow_dispatch input
+          if [ -n "${{ github.event.inputs.block }}" ]; then
+            BLOCK="${{ github.event.inputs.block }}"
+          else
+            case "${HOUR}:${MIN}" in
+              "03:3"*) BLOCK=1 ;;
+              "04:1"*) BLOCK=2 ;;
+              "07:3"*) BLOCK=3 ;;
+              "08:3"*) BLOCK=4 ;;
+              "11:3"*) BLOCK=5 ;;
+              "13:0"*) BLOCK=6 ;;
+              "13:4"*) BLOCK=7 ;;
+              "16:1"*) BLOCK=8 ;;
+              "16:3"*) BLOCK=9 ;;
+              "18:0"*) BLOCK=10 ;;
+              "18:1"*) BLOCK=11 ;;
+              "19:4"*) BLOCK=12 ;;
+              "20:1"*) BLOCK=13 ;;
+              "21:4"*) BLOCK=14 ;;
+              "22:0"*) BLOCK=15 ;;
+              "23:3"*) BLOCK=16 ;;
+              "00:0"*) BLOCK=17 ;;
+              "00:3"*) BLOCK=18 ;;
+              *) BLOCK=0 ;;
+            esac
+          fi
+
+          case "$BLOCK" in
+            1)  TITLE="Morning Launch"             ; EMOJI="🌅" ; TIME="9:00 AM"  ; DESC="Drink two glasses of water, expose eyes to 5000K+ light, take Morning Stack (B12, Nootropic, Omega-3)" ;;
+            2)  TITLE="Study Block 1+2"            ; EMOJI="📚" ; TIME="9:45 AM"  ; DESC="90 + 10 + 90 min combined session — active recall then practice problems" ;;
+            3)  TITLE="Digital Detox Lunch"        ; EMOJI="🥗" ; TIME="1:00 PM"  ; DESC="High-protein meal — step away from desk and all screens entirely" ;;
+            4)  TITLE="Biphasic Nap"               ; EMOJI="😴" ; TIME="2:00 PM"  ; DESC="90-minute target sleep — blackout environment, earplugs" ;;
+            5)  TITLE="Iron Session"               ; EMOJI="🏋️" ; TIME="5:00 PM"  ; DESC="PPL resistance training — CAFFEINE CUT-OFF after this block" ;;
+            6)  TITLE="Dinner & Dose 2"            ; EMOJI="🍽️" ; TIME="6:30 PM"  ; DESC="High-protein dinner + second Omega-3 capsule" ;;
+            7)  TITLE="Battle Planning"            ; EMOJI="📝" ; TIME="7:15 PM"  ; DESC="Decompress, then write tonight's exact target problems on physical paper" ;;
+            8)  TITLE="Environment Lock-in"        ; EMOJI="🔒" ; TIME="9:45 PM"  ; DESC="Switch to 5000K lights, phone in drawer, clear the desk" ;;
+            9)  TITLE="Study Block 3: Heavy Lifting"; EMOJI="🔥"; TIME="10:00 PM" ; DESC="90min active output — hardest material: complex derivations, actuarial theory" ;;
+            10) TITLE="Break 1"                    ; EMOJI="🧊" ; TIME="11:30 PM" ; DESC="Stand, stretch, drink ice water — keep 5000K lights on" ;;
+            11) TITLE="Study Block 4: Context Switch"; EMOJI="🔄"; TIME="11:45 PM"; DESC="90min in a completely different domain from Block 3" ;;
+            12) TITLE="Mid-Shift Break"            ; EMOJI="🚶" ; TIME="1:15 AM"  ; DESC="Leave the desk completely — optional light protein snack (no carbs/sugar)" ;;
+            13) TITLE="Study Block 5: The Grind"   ; EMOJI="⚡" ; TIME="1:45 AM"  ; DESC="90min highly active output — past papers, diagrams, coding — fight adenosine" ;;
+            14) TITLE="Cold Reset"                 ; EMOJI="💧" ; TIME="3:15 AM"  ; DESC="Splash cold water on face, pace the room for 5 minutes" ;;
+            15) TITLE="Study Block 6: Closeout"    ; EMOJI="📖" ; TIME="3:30 AM"  ; DESC="90min low-friction review — final 15 min: write tomorrow's problem list on paper" ;;
+            16) TITLE="Light Shift"                ; EMOJI="🌙" ; TIME="5:00 AM"  ; DESC="Turn off 5000K lights, switch to 2700K/red light, Magnesium Bisglycinate x2" ;;
+            17) TITLE="Digital Sunset"             ; EMOJI="📵" ; TIME="5:30 AM"  ; DESC="Turn off PC, put phone away, read a physical book for 30 minutes" ;;
+            18) TITLE="Post-Study Sleep"           ; EMOJI="🛌" ; TIME="6:00 AM"  ; DESC="3-hour target sleep — cool, blackout room, earplugs" ;;
+            *)  TITLE="Unknown block"              ; EMOJI="🔔" ; TIME="--"        ; DESC="Block could not be identified from schedule time" ;;
+          esac
+
+          echo "block=$BLOCK"   >> "$GITHUB_OUTPUT"
+          echo "title=$TITLE"   >> "$GITHUB_OUTPUT"
+          echo "emoji=$EMOJI"   >> "$GITHUB_OUTPUT"
+          echo "time=$TIME"     >> "$GITHUB_OUTPUT"
+          echo "desc=$DESC"     >> "$GITHUB_OUTPUT"
+
+      - name: Log block to workflow summary
+        run: |
+          BLOCK="${{ steps.block.outputs.block }}"
+          EMOJI="${{ steps.block.outputs.emoji }}"
+          TITLE="${{ steps.block.outputs.title }}"
+          TIME="${{ steps.block.outputs.time }}"
+          DESC="${{ steps.block.outputs.desc }}"
+
+          echo "## ${EMOJI} The Shift — Block ${BLOCK}: ${TITLE}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Time:** ${TIME} IST" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "${DESC}" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "${EMOJI} Block ${BLOCK} — ${TITLE} (${TIME} IST)"
+          echo "${DESC}"
+
+      - name: Send Telegram notification
+        if: ${{ env.TELEGRAM_BOT_TOKEN != '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          BLOCK="${{ steps.block.outputs.block }}"
+          EMOJI="${{ steps.block.outputs.emoji }}"
+          TITLE="${{ steps.block.outputs.title }}"
+          TIME="${{ steps.block.outputs.time }}"
+          DESC="${{ steps.block.outputs.desc }}"
+
+          MESSAGE="${EMOJI} *The Shift — Block ${BLOCK}*%0A*${TITLE}* · ${TIME} IST%0A%0A${DESC}"
+
+          curl -s -X POST \
+            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${TELEGRAM_CHAT_ID}" \
+            -d "parse_mode=Markdown" \
+            -d "text=${MESSAGE}" \
+            -o /dev/null

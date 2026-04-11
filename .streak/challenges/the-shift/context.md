@@ -6,8 +6,9 @@ Resources and connections related to The Shift challenge.
 
 ## Linked Resources
 - Protocol: This Streak challenge captures the full 18-block schedule
-- Base directory: `E:\cowork`
-- Calendar: `E:\cowork\.streak\the-shift-reminders.ics` — import to Google/Apple/Outlook
+- Base directory: `/home/user/cowork`
+- Calendar: `.streak/the-shift-reminders.ics` — import to Google/Apple/Outlook
+- Remote Triggers: `.github/workflows/the-shift-reminders.yml` — GitHub Actions cron schedule for all 18 blocks
 
 ---
 
@@ -16,7 +17,7 @@ Resources and connections related to The Shift challenge.
 - **Lighting (Wind-down):** 2700K/red light — active from 5:00 AM onward
 - **Supplements:** Morning Stack at 9:00 AM (B12 sublingually, Nootropic before food, Omega-3 with breakfast); Omega-3 at 6:30 PM; Magnesium Bisglycinate x2 at 5:00 AM
 - **Sleep:** Earplugs + blackout environment for both Biphasic Nap (2:00–3:30 PM) and Post-Study Sleep (6:00–9:00 AM)
-- **iOS Reminders:** Claude scheduled tasks firing daily for all 18 blocks
+- **Remote Triggers:** GitHub Actions workflow fires at each block's exact IST time (UTC-converted); optional Telegram alerts to iOS via `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` repository secrets
 
 ---
 
