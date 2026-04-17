@@ -21,12 +21,29 @@ on:
     - cron: '30 23 * * *'  # Block 16 — Light Shift           05:00 IST
     - cron: '0 0 * * *'    # Block 17 — Digital Sunset        05:30 IST
     - cron: '30 0 * * *'   # Block 18 — Post-Study Sleep      06:00 IST
+
+  # ── Manual trigger via GitHub UI ──────────────────────────────────────────
   workflow_dispatch:
     inputs:
       block:
-        description: 'Block number to test (1-18, or "all")'
+        description: 'Block number to fire (1-18, or "all")'
         required: false
         default: '1'
+
+  # ── Webhook / remote trigger via GitHub API ────────────────────────────────
+  # Fire any block remotely with a single HTTP POST (no machine needed):
+  #
+  #   curl -X POST \
+  #     -H "Authorization: Bearer <YOUR_GITHUB_PAT>" \
+  #     -H "Accept: application/vnd.github+json" \
+  #     -H "Content-Type: application/json" \
+  #     https://api.github.com/repos/suvamkumarstudentmail-cmyk/cowork/dispatches \
+  #     -d '{"event_type":"the-shift","client_payload":{"block":"5"}}'
+  #
+  # Set block to "1"-"18" for a specific block, or "all" to fire every block.
+  # The PAT needs at minimum: repo scope (or contents: write for fine-grained).
+  repository_dispatch:
+    types: [the-shift]
 
 jobs:
   remind:
@@ -36,7 +53,8 @@ jobs:
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
-          MANUAL_BLOCK: ${{ github.event.inputs.block }}
+          # workflow_dispatch sets inputs.block; repository_dispatch sets client_payload.block
+          MANUAL_BLOCK: ${{ github.event.inputs.block || github.event.client_payload.block }}
         run: |
           python3 << 'EOF'
           import urllib.request
