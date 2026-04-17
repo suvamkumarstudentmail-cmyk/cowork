@@ -1,0 +1,128 @@
+name: The Shift — Daily Reminders
+
+on:
+  schedule:
+    # All times in UTC (IST = UTC+5:30, so subtract 5h30m)
+    - cron: '30 3 * * *'   # Block 1  — Morning Launch        09:00 IST
+    - cron: '15 4 * * *'   # Block 2  — Study Block 1+2       09:45 IST
+    - cron: '30 7 * * *'   # Block 3  — Digital Detox Lunch   13:00 IST
+    - cron: '30 8 * * *'   # Block 4  — Biphasic Nap          14:00 IST
+    - cron: '30 11 * * *'  # Block 5  — Iron Session          17:00 IST
+    - cron: '0 13 * * *'   # Block 6  — Dinner & Dose 2       18:30 IST
+    - cron: '45 13 * * *'  # Block 7  — Battle Planning       19:15 IST
+    - cron: '15 16 * * *'  # Block 8  — Environment Lock-in   21:45 IST
+    - cron: '30 16 * * *'  # Block 9  — Study Block 3         22:00 IST
+    - cron: '0 18 * * *'   # Block 10 — Break 1               23:30 IST
+    - cron: '15 18 * * *'  # Block 11 — Study Block 4         23:45 IST
+    - cron: '45 19 * * *'  # Block 12 — Mid-Shift Break       01:15 IST
+    - cron: '15 20 * * *'  # Block 13 — Study Block 5         01:45 IST
+    - cron: '45 21 * * *'  # Block 14 — Cold Reset            03:15 IST
+    - cron: '0 22 * * *'   # Block 15 — Study Block 6         03:30 IST
+    - cron: '30 23 * * *'  # Block 16 — Light Shift           05:00 IST
+    - cron: '0 0 * * *'    # Block 17 — Digital Sunset        05:30 IST
+    - cron: '30 0 * * *'   # Block 18 — Post-Study Sleep      06:00 IST
+  workflow_dispatch:
+    inputs:
+      block:
+        description: 'Block number to test (1-18, or "all")'
+        required: false
+        default: '1'
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send The Shift reminder
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
+          MANUAL_BLOCK: ${{ github.event.inputs.block }}
+        run: |
+          python3 << 'EOF'
+          import urllib.request
+          import urllib.error
+          import os
+          import datetime
+
+          topic = os.environ.get("NTFY_TOPIC", "")
+          token = os.environ.get("NTFY_TOKEN", "")
+          manual_block = os.environ.get("MANUAL_BLOCK", "")
+
+          if not topic:
+              print("ERROR: NTFY_TOPIC secret is not set. Go to repo Settings → Secrets → Actions and add NTFY_TOPIC.")
+              exit(1)
+
+          # UTC time right now
+          now = datetime.datetime.utcnow()
+          h, m = now.hour, now.minute
+
+          # Map (UTC hour, UTC minute) → block info
+          # Format: (h, m): (emoji, title, message, ntfy_priority)
+          # ntfy priority: 5=urgent, 4=high, 3=default
+          BLOCKS = {
+              (3, 30): ("🌅", "Morning Launch", "Drink 2 glasses of water · expose eyes to 5000K+ light · take Morning Stack (B12 sublingual, Nootropic before food, Omega-3 with breakfast).", 3),
+              (4, 15): ("📚", "Study Block 1+2 — 90+10+90 min", "Block 1 (9:45–11:15): Active recall & consolidation.\n10-min break (11:15–11:25).\nBlock 2 (11:25–1:00 PM): Practice problems & concept mapping.", 4),
+              (7, 30): ("🥗", "Digital Detox Lunch", "High-protein meal. Step away from desk and ALL screens entirely.", 3),
+              (8, 30): ("😴", "Biphasic Nap — 90 min", "Blackout environment + earplugs. Target: 90-minute sleep.", 4),
+              (11, 30): ("🏋️", "Iron Session — PPL Training", "Complete your PPL resistance training. THIS IS YOUR DAILY CAFFEINE CUT-OFF.", 5),
+              (13, 0): ("🍽️", "Dinner & Dose 2", "High-protein dinner + second Omega-3 capsule.", 3),
+              (13, 45): ("📝", "Battle Planning", "Decompress fully. Write tonight's EXACT target problems on physical paper.", 4),
+              (16, 15): ("🔒", "Environment Lock-in", "Switch all lights to 5000K cool white · phone in drawer · clear the desk.", 4),
+              (16, 30): ("🔥", "Study Block 3 — Heavy Lifting", "90 min active output on your HARDEST material: complex derivations, actuarial theory. PEAK WINDOW.", 5),
+              (18, 0): ("🧊", "Break 1", "Stand · stretch · drink ice water. Keep 5000K lights ON.", 4),
+              (18, 15): ("🔄", "Study Block 4 — Context Switch", "90 min in a COMPLETELY different domain from Block 3. Full cognitive reset.", 4),
+              (19, 45): ("🚶", "Mid-Shift Break", "Leave the desk completely. Optional: light protein snack — no carbs or sugar.", 4),
+              (20, 15): ("⚡", "Study Block 5 — The Grind", "90 min highly active output: past papers, diagrams, coding. Fight adenosine buildup.", 4),
+              (21, 45): ("💧", "Cold Reset", "Splash cold water on your face. Pace the room for 5 minutes.", 4),
+              (22, 0): ("📖", "Study Block 6 — Closeout", "90 min low-friction review. Final 15 min: write tomorrow's exact problem list on paper.", 4),
+              (23, 30): ("🌙", "Light Shift", "Turn off all 5000K lights · switch to 2700K/red light · take 2× Magnesium Bisglycinate.", 4),
+              (0, 0): ("📵", "Digital Sunset", "Turn off the PC · put phone away · read a physical book for 30 minutes.", 4),
+              (0, 30): ("🛌", "Post-Study Sleep", "Get into bed. 3-hour target sleep in a cool, blackout room with earplugs.", 4),
+          }
+
+          # Manual override for workflow_dispatch testing
+          if manual_block:
+              block_list = list(BLOCKS.values())
+              try:
+                  if manual_block == "all":
+                      entries = block_list
+                  else:
+                      idx = int(manual_block) - 1
+                      entries = [block_list[idx]]
+              except (ValueError, IndexError):
+                  entries = [block_list[0]]
+              blocks_to_send = entries
+          else:
+              # Match current UTC time (allow ±1 minute window)
+              block = BLOCKS.get((h, m)) or BLOCKS.get((h, m - 1 if m > 0 else 59))
+              blocks_to_send = [block] if block else []
+
+          if not blocks_to_send:
+              print(f"No block matched for UTC {h:02d}:{m:02d}. Nothing sent.")
+              exit(0)
+
+          url = f"https://ntfy.sh/{topic}"
+
+          for emoji, title, message, priority in blocks_to_send:
+              full_title = f"{emoji} THE SHIFT — {title}"
+              headers = {
+                  "Title": full_title,
+                  "Priority": str(priority),
+                  "Tags": "calendar,study",
+              }
+              if token:
+                  headers["Authorization"] = f"Bearer {token}"
+
+              body = message.encode("utf-8")
+              req = urllib.request.Request(url, data=body, headers=headers, method="POST")
+
+              try:
+                  with urllib.request.urlopen(req, timeout=10) as resp:
+                      print(f"✅ Sent: {full_title} (HTTP {resp.status})")
+              except urllib.error.HTTPError as e:
+                  print(f"❌ HTTP {e.code} sending '{full_title}': {e.reason}")
+                  exit(1)
+              except Exception as e:
+                  print(f"❌ Error sending '{full_title}': {e}")
+                  exit(1)
+          EOF
