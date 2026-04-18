@@ -2,7 +2,6 @@ name: The Shift — Daily Reminders
 
 on:
   schedule:
-    # All times in UTC (IST = UTC+5:30, so subtract 5h30m)
     - cron: '30 3 * * *'   # Block 1  — Morning Launch        09:00 IST
     - cron: '15 4 * * *'   # Block 2  — Study Block 1+2       09:45 IST
     - cron: '30 7 * * *'   # Block 3  — Digital Detox Lunch   13:00 IST
@@ -22,7 +21,6 @@ on:
     - cron: '0 0 * * *'    # Block 17 — Digital Sunset        05:30 IST
     - cron: '30 0 * * *'   # Block 18 — Post-Study Sleep      06:00 IST
 
-  # ── Manual trigger via GitHub UI ──────────────────────────────────────────
   workflow_dispatch:
     inputs:
       block:
@@ -30,18 +28,6 @@ on:
         required: false
         default: '1'
 
-  # ── Webhook / remote trigger via GitHub API ────────────────────────────────
-  # Fire any block remotely with a single HTTP POST (no machine needed):
-  #
-  #   curl -X POST \
-  #     -H "Authorization: Bearer <YOUR_GITHUB_PAT>" \
-  #     -H "Accept: application/vnd.github+json" \
-  #     -H "Content-Type: application/json" \
-  #     https://api.github.com/repos/suvamkumarstudentmail-cmyk/cowork/dispatches \
-  #     -d '{"event_type":"the-shift","client_payload":{"block":"5"}}'
-  #
-  # Set block to "1"-"18" for a specific block, or "all" to fire every block.
-  # The PAT needs at minimum: repo scope (or contents: write for fine-grained).
   repository_dispatch:
     types: [the-shift]
 
@@ -49,98 +35,134 @@ jobs:
   remind:
     runs-on: ubuntu-latest
     steps:
-      - name: Send The Shift reminder
+      - name: Resolve block from trigger
+        id: resolve
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+          DISPATCH_BLOCK: ${{ github.event.inputs.block || github.event.client_payload.block }}
+        run: |
+          # Map cron expression → block number
+          case "$SCHEDULE" in
+            "30 3 * * *")  echo "block=1"  >> $GITHUB_OUTPUT ;;
+            "15 4 * * *")  echo "block=2"  >> $GITHUB_OUTPUT ;;
+            "30 7 * * *")  echo "block=3"  >> $GITHUB_OUTPUT ;;
+            "30 8 * * *")  echo "block=4"  >> $GITHUB_OUTPUT ;;
+            "30 11 * * *") echo "block=5"  >> $GITHUB_OUTPUT ;;
+            "0 13 * * *")  echo "block=6"  >> $GITHUB_OUTPUT ;;
+            "45 13 * * *") echo "block=7"  >> $GITHUB_OUTPUT ;;
+            "15 16 * * *") echo "block=8"  >> $GITHUB_OUTPUT ;;
+            "30 16 * * *") echo "block=9"  >> $GITHUB_OUTPUT ;;
+            "0 18 * * *")  echo "block=10" >> $GITHUB_OUTPUT ;;
+            "15 18 * * *") echo "block=11" >> $GITHUB_OUTPUT ;;
+            "45 19 * * *") echo "block=12" >> $GITHUB_OUTPUT ;;
+            "15 20 * * *") echo "block=13" >> $GITHUB_OUTPUT ;;
+            "45 21 * * *") echo "block=14" >> $GITHUB_OUTPUT ;;
+            "0 22 * * *")  echo "block=15" >> $GITHUB_OUTPUT ;;
+            "30 23 * * *") echo "block=16" >> $GITHUB_OUTPUT ;;
+            "0 0 * * *")   echo "block=17" >> $GITHUB_OUTPUT ;;
+            "30 0 * * *")  echo "block=18" >> $GITHUB_OUTPUT ;;
+            *)
+              # workflow_dispatch or repository_dispatch — use provided block number
+              echo "block=${DISPATCH_BLOCK:-1}" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Send ntfy notification
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-          NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
-          # workflow_dispatch sets inputs.block; repository_dispatch sets client_payload.block
-          MANUAL_BLOCK: ${{ github.event.inputs.block || github.event.client_payload.block }}
+          BLOCK: ${{ steps.resolve.outputs.block }}
         run: |
-          python3 << 'EOF'
-          import urllib.request
-          import urllib.error
-          import os
-          import datetime
+          declare -A TITLES MESSAGES PRIORITIES
 
-          topic = os.environ.get("NTFY_TOPIC", "")
-          token = os.environ.get("NTFY_TOKEN", "")
-          manual_block = os.environ.get("MANUAL_BLOCK", "")
+          TITLES[1]="THE SHIFT — Block 1: Morning Launch (9:00 AM)"
+          MESSAGES[1]="Drink water · 5000K light · take Morning Stack (B12, Nootropic, Omega-3 with breakfast)."
+          PRIORITIES[1]=3
 
-          if not topic:
-              print("ERROR: NTFY_TOPIC secret is not set. Go to repo Settings → Secrets → Actions and add NTFY_TOPIC.")
-              exit(1)
+          TITLES[2]="THE SHIFT — Block 2: Study Block 1+2 (9:45 AM)"
+          MESSAGES[2]="90min active recall → 10min break → 90min practice problems. Sit down now."
+          PRIORITIES[2]=4
 
-          # UTC time right now
-          now = datetime.datetime.utcnow()
-          h, m = now.hour, now.minute
+          TITLES[3]="THE SHIFT — Block 3: Digital Detox Lunch (1:00 PM)"
+          MESSAGES[3]="Step away from ALL screens. High-protein meal. Biphasic Nap at 2PM."
+          PRIORITIES[3]=3
 
-          # Map (UTC hour, UTC minute) → block info
-          # Format: (h, m): (emoji, title, message, ntfy_priority)
-          # ntfy priority: 5=urgent, 4=high, 3=default
-          BLOCKS = {
-              (3, 30): ("🌅", "Morning Launch", "Drink 2 glasses of water · expose eyes to 5000K+ light · take Morning Stack (B12 sublingual, Nootropic before food, Omega-3 with breakfast).", 3),
-              (4, 15): ("📚", "Study Block 1+2 — 90+10+90 min", "Block 1 (9:45–11:15): Active recall & consolidation.\n10-min break (11:15–11:25).\nBlock 2 (11:25–1:00 PM): Practice problems & concept mapping.", 4),
-              (7, 30): ("🥗", "Digital Detox Lunch", "High-protein meal. Step away from desk and ALL screens entirely.", 3),
-              (8, 30): ("😴", "Biphasic Nap — 90 min", "Blackout environment + earplugs. Target: 90-minute sleep.", 4),
-              (11, 30): ("🏋️", "Iron Session — PPL Training", "Complete your PPL resistance training. THIS IS YOUR DAILY CAFFEINE CUT-OFF.", 5),
-              (13, 0): ("🍽️", "Dinner & Dose 2", "High-protein dinner + second Omega-3 capsule.", 3),
-              (13, 45): ("📝", "Battle Planning", "Decompress fully. Write tonight's EXACT target problems on physical paper.", 4),
-              (16, 15): ("🔒", "Environment Lock-in", "Switch all lights to 5000K cool white · phone in drawer · clear the desk.", 4),
-              (16, 30): ("🔥", "Study Block 3 — Heavy Lifting", "90 min active output on your HARDEST material: complex derivations, actuarial theory. PEAK WINDOW.", 5),
-              (18, 0): ("🧊", "Break 1", "Stand · stretch · drink ice water. Keep 5000K lights ON.", 4),
-              (18, 15): ("🔄", "Study Block 4 — Context Switch", "90 min in a COMPLETELY different domain from Block 3. Full cognitive reset.", 4),
-              (19, 45): ("🚶", "Mid-Shift Break", "Leave the desk completely. Optional: light protein snack — no carbs or sugar.", 4),
-              (20, 15): ("⚡", "Study Block 5 — The Grind", "90 min highly active output: past papers, diagrams, coding. Fight adenosine buildup.", 4),
-              (21, 45): ("💧", "Cold Reset", "Splash cold water on your face. Pace the room for 5 minutes.", 4),
-              (22, 0): ("📖", "Study Block 6 — Closeout", "90 min low-friction review. Final 15 min: write tomorrow's exact problem list on paper.", 4),
-              (23, 30): ("🌙", "Light Shift", "Turn off all 5000K lights · switch to 2700K/red light · take 2× Magnesium Bisglycinate.", 4),
-              (0, 0): ("📵", "Digital Sunset", "Turn off the PC · put phone away · read a physical book for 30 minutes.", 4),
-              (0, 30): ("🛌", "Post-Study Sleep", "Get into bed. 3-hour target sleep in a cool, blackout room with earplugs.", 4),
-          }
+          TITLES[4]="THE SHIFT — Block 4: Biphasic Nap (2:00 PM)"
+          MESSAGES[4]="Blackout curtains, earplugs, 90min sleep target. Iron Session at 5PM."
+          PRIORITIES[4]=4
 
-          # Manual override for workflow_dispatch testing
-          if manual_block:
-              block_list = list(BLOCKS.values())
-              try:
-                  if manual_block == "all":
-                      entries = block_list
-                  else:
-                      idx = int(manual_block) - 1
-                      entries = [block_list[idx]]
-              except (ValueError, IndexError):
-                  entries = [block_list[0]]
-              blocks_to_send = entries
-          else:
-              # Match current UTC time (allow ±1 minute window)
-              block = BLOCKS.get((h, m)) or BLOCKS.get((h, m - 1 if m > 0 else 59))
-              blocks_to_send = [block] if block else []
+          TITLES[5]="THE SHIFT — Block 5: Iron Session (5:00 PM)"
+          MESSAGES[5]="PPL workout NOW. CAFFEINE CUT-OFF from this point forward."
+          PRIORITIES[5]=5
 
-          if not blocks_to_send:
-              print(f"No block matched for UTC {h:02d}:{m:02d}. Nothing sent.")
-              exit(0)
+          TITLES[6]="THE SHIFT — Block 6: Dinner and Dose 2 (6:30 PM)"
+          MESSAGES[6]="High-protein dinner + second Omega-3 capsule. Battle Planning at 7:15PM."
+          PRIORITIES[6]=3
 
-          url = f"https://ntfy.sh/{topic}"
+          TITLES[7]="THE SHIFT — Block 7: Battle Planning (7:15 PM)"
+          MESSAGES[7]="Decompress fully. Write tonight's EXACT target problems on physical paper."
+          PRIORITIES[7]=4
 
-          for emoji, title, message, priority in blocks_to_send:
-              full_title = f"{emoji} THE SHIFT — {title}"
-              headers = {
-                  "Title": full_title,
-                  "Priority": str(priority),
-                  "Tags": "calendar,study",
-              }
-              if token:
-                  headers["Authorization"] = f"Bearer {token}"
+          TITLES[8]="THE SHIFT — Block 8: Environment Lock-in (9:45 PM)"
+          MESSAGES[8]="5000K lights on · phone in drawer · clear desk. Study Block 3 starts at 10PM."
+          PRIORITIES[8]=4
 
-              body = message.encode("utf-8")
-              req = urllib.request.Request(url, data=body, headers=headers, method="POST")
+          TITLES[9]="THE SHIFT — Block 9: Heavy Lifting (10:00 PM)"
+          MESSAGES[9]="PEAK WINDOW. Hardest material now — derivations, actuarial theory. Go."
+          PRIORITIES[9]=5
 
-              try:
-                  with urllib.request.urlopen(req, timeout=10) as resp:
-                      print(f"✅ Sent: {full_title} (HTTP {resp.status})")
-              except urllib.error.HTTPError as e:
-                  print(f"❌ HTTP {e.code} sending '{full_title}': {e.reason}")
-                  exit(1)
-              except Exception as e:
-                  print(f"❌ Error sending '{full_title}': {e}")
-                  exit(1)
-          EOF
+          TITLES[10]="THE SHIFT — Block 10: Break 1 (11:30 PM)"
+          MESSAGES[10]="Stand, stretch, ice water. Keep 5000K lights ON. Block 4 at 11:45PM."
+          PRIORITIES[10]=4
+
+          TITLES[11]="THE SHIFT — Block 11: Context Switch (11:45 PM)"
+          MESSAGES[11]="90min in a DIFFERENT domain from Block 3. Full cognitive reset."
+          PRIORITIES[11]=4
+
+          TITLES[12]="THE SHIFT — Block 12: Mid-Shift Break (1:15 AM)"
+          MESSAGES[12]="Leave desk completely. Optional light protein snack, no carbs. Back at 1:45AM."
+          PRIORITIES[12]=4
+
+          TITLES[13]="THE SHIFT — Block 13: The Grind (1:45 AM)"
+          MESSAGES[13]="Active output only — past papers, diagrams, coding. Fight adenosine. 90min."
+          PRIORITIES[13]=4
+
+          TITLES[14]="THE SHIFT — Block 14: Cold Reset (3:15 AM)"
+          MESSAGES[14]="Splash cold water on face. Pace room 5 minutes. Closeout starts 3:30AM."
+          PRIORITIES[14]=4
+
+          TITLES[15]="THE SHIFT — Block 15: Closeout (3:30 AM)"
+          MESSAGES[15]="Low-friction review. At 4:45AM write tomorrow's problem list on paper. Last block."
+          PRIORITIES[15]=4
+
+          TITLES[16]="THE SHIFT — Block 16: Light Shift (5:00 AM)"
+          MESSAGES[16]="5000K off → 2700K/red light on. Take 2x Magnesium Bisglycinate now."
+          PRIORITIES[16]=4
+
+          TITLES[17]="THE SHIFT — Block 17: Digital Sunset (5:30 AM)"
+          MESSAGES[17]="PC off · phone away · read physical book 30min. Post-Study Sleep at 6AM."
+          PRIORITIES[17]=4
+
+          TITLES[18]="THE SHIFT — Block 18: Post-Study Sleep (6:00 AM)"
+          MESSAGES[18]="The Shift is complete. Cool blackout room, earplugs, 3h sleep. Well done."
+          PRIORITIES[18]=4
+
+          if [ "$BLOCK" = "all" ]; then
+            BLOCKS_TO_SEND=(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18)
+          else
+            BLOCKS_TO_SEND=($BLOCK)
+          fi
+
+          for b in "${BLOCKS_TO_SEND[@]}"; do
+            echo "Sending block $b: ${TITLES[$b]}"
+            HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X POST "https://ntfy.sh/${NTFY_TOPIC}" \
+              -H "Title: ${TITLES[$b]}" \
+              -H "Priority: ${PRIORITIES[$b]}" \
+              -H "Tags: calendar,study" \
+              -d "${MESSAGES[$b]}")
+            if [ "$HTTP" = "200" ]; then
+              echo "✅ Sent block $b (HTTP $HTTP)"
+            else
+              echo "❌ Failed block $b (HTTP $HTTP)"
+              exit 1
+            fi
+          done
