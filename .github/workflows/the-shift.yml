@@ -2,6 +2,7 @@ name: The Shift — Daily Reminders
 
 on:
   schedule:
+    - cron: '20 3 * * *'   # Block 0  — Pre-Shift Briefing    08:50 IST
     - cron: '30 3 * * *'   # Block 1  — Morning Launch        09:00 IST
     - cron: '15 4 * * *'   # Block 2  — Study Block 1+2       09:45 IST
     - cron: '30 7 * * *'   # Block 3  — Digital Detox Lunch   13:00 IST
@@ -10,13 +11,13 @@ on:
     - cron: '0 13 * * *'   # Block 6  — Dinner & Dose 2       18:30 IST
     - cron: '45 13 * * *'  # Block 7  — Battle Planning       19:15 IST
     - cron: '15 16 * * *'  # Block 8  — Environment Lock-in   21:45 IST
-    - cron: '30 16 * * *'  # Block 9  — Study Block 3         22:00 IST
+    - cron: '30 16 * * *'  # Block 9  — Heavy Lifting         22:00 IST
     - cron: '0 18 * * *'   # Block 10 — Break 1               23:30 IST
-    - cron: '15 18 * * *'  # Block 11 — Study Block 4         23:45 IST
+    - cron: '15 18 * * *'  # Block 11 — Context Switch        23:45 IST
     - cron: '45 19 * * *'  # Block 12 — Mid-Shift Break       01:15 IST
-    - cron: '15 20 * * *'  # Block 13 — Study Block 5         01:45 IST
+    - cron: '15 20 * * *'  # Block 13 — The Grind             01:45 IST
     - cron: '45 21 * * *'  # Block 14 — Cold Reset            03:15 IST
-    - cron: '0 22 * * *'   # Block 15 — Study Block 6         03:30 IST
+    - cron: '0 22 * * *'   # Block 15 — Closeout              03:30 IST
     - cron: '30 23 * * *'  # Block 16 — Light Shift           05:00 IST
     - cron: '0 0 * * *'    # Block 17 — Digital Sunset        05:30 IST
     - cron: '30 0 * * *'   # Block 18 — Post-Study Sleep      06:00 IST
@@ -24,7 +25,7 @@ on:
   workflow_dispatch:
     inputs:
       block:
-        description: 'Block number to fire (1-18, or "all")'
+        description: 'Block number to fire (0-18, or "all")'
         required: false
         default: '1'
 
@@ -43,6 +44,7 @@ jobs:
         run: |
           # Map cron expression → block number
           case "$SCHEDULE" in
+            "20 3 * * *")  echo "block=0"  >> $GITHUB_OUTPUT ;;
             "30 3 * * *")  echo "block=1"  >> $GITHUB_OUTPUT ;;
             "15 4 * * *")  echo "block=2"  >> $GITHUB_OUTPUT ;;
             "30 7 * * *")  echo "block=3"  >> $GITHUB_OUTPUT ;;
@@ -72,82 +74,105 @@ jobs:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           BLOCK: ${{ steps.resolve.outputs.block }}
         run: |
-          declare -A TITLES MESSAGES PRIORITIES
+          declare -A TITLES MESSAGES PRIORITIES TAGS
 
-          TITLES[1]="THE SHIFT — Block 1: Morning Launch (9:00 AM)"
-          MESSAGES[1]="Drink water · 5000K light · take Morning Stack (B12, Nootropic, Omega-3 with breakfast)."
+          TITLES[0]="🌅 THE SHIFT · Briefing: Shift starts in 10 min"
+          MESSAGES[0]="Today: **6 study blocks** · PPL Iron Session · Nap at 2 PM · Night shift opens 10 PM. Drink water first."
+          PRIORITIES[0]=3
+          TAGS[0]="alarm_clock,calendar"
+
+          TITLES[1]="🌅 THE SHIFT · B1: Morning Launch"
+          MESSAGES[1]="💧 Drink water · 5000K light · take Morning Stack (B12, Nootropic, Omega-3). ▸ Next: Study 1+2 at 9:45 AM"
           PRIORITIES[1]=3
+          TAGS[1]="sunny,pill"
 
-          TITLES[2]="THE SHIFT — Block 2: Study Block 1+2 (9:45 AM)"
-          MESSAGES[2]="90min active recall → 10min break → 90min practice problems. Sit down now."
+          TITLES[2]="🌅 THE SHIFT · B2: Study Block 1+2"
+          MESSAGES[2]="📚 90min active recall → 10min break → 90min practice problems. **Sit down now.** ▸ Next: Lunch at 1:00 PM"
           PRIORITIES[2]=4
+          TAGS[2]="books,pencil2"
 
-          TITLES[3]="THE SHIFT — Block 3: Digital Detox Lunch (1:00 PM)"
-          MESSAGES[3]="Step away from ALL screens. High-protein meal. Biphasic Nap at 2PM."
+          TITLES[3]="🌅 THE SHIFT · B3: Detox Lunch"
+          MESSAGES[3]="🥗 Step away from ALL screens. High-protein meal. No phone. ▸ Next: Nap at 2:00 PM"
           PRIORITIES[3]=3
+          TAGS[3]="fork_and_knife,no_mobile_phones"
 
-          TITLES[4]="THE SHIFT — Block 4: Biphasic Nap (2:00 PM)"
-          MESSAGES[4]="Blackout curtains, earplugs, 90min sleep target. Iron Session at 5PM."
+          TITLES[4]="🔄 THE SHIFT · B4: Biphasic Nap"
+          MESSAGES[4]="😴 Blackout curtains · earplugs · 90min sleep target. **Protect this.** ▸ Next: Iron Session at 5:00 PM"
           PRIORITIES[4]=4
+          TAGS[4]="sleeping_face,zzz"
 
-          TITLES[5]="THE SHIFT — Block 5: Iron Session (5:00 PM)"
-          MESSAGES[5]="PPL workout NOW. CAFFEINE CUT-OFF from this point forward."
+          TITLES[5]="🔄 THE SHIFT · B5: Iron Session"
+          MESSAGES[5]="💪 **PPL workout NOW.** Caffeine cut-off from this point — no exceptions. ▸ Next: Dinner at 6:30 PM"
           PRIORITIES[5]=5
+          TAGS[5]="muscle,no_entry_sign"
 
-          TITLES[6]="THE SHIFT — Block 6: Dinner and Dose 2 (6:30 PM)"
-          MESSAGES[6]="High-protein dinner + second Omega-3 capsule. Battle Planning at 7:15PM."
+          TITLES[6]="🔄 THE SHIFT · B6: Dinner & Dose 2"
+          MESSAGES[6]="🍽️ High-protein dinner + Omega-3 capsule. Decompress. ▸ Next: Battle Planning at 7:15 PM"
           PRIORITIES[6]=3
+          TAGS[6]="fork_and_knife,pill"
 
-          TITLES[7]="THE SHIFT — Block 7: Battle Planning (7:15 PM)"
-          MESSAGES[7]="Decompress fully. Write tonight's EXACT target problems on physical paper."
+          TITLES[7]="🔄 THE SHIFT · B7: Battle Planning"
+          MESSAGES[7]="📝 Write tonight's EXACT target problems on physical paper. Night shift in 2h 30m. ▸ Next: Lock-in at 9:45 PM"
           PRIORITIES[7]=4
+          TAGS[7]="memo,pencil2"
 
-          TITLES[8]="THE SHIFT — Block 8: Environment Lock-in (9:45 PM)"
-          MESSAGES[8]="5000K lights on · phone in drawer · clear desk. Study Block 3 starts at 10PM."
-          PRIORITIES[8]=4
+          TITLES[8]="🔥 THE SHIFT · B8: Environment Lock-in"
+          MESSAGES[8]="🔒 **5000K on · phone in drawer · clear desk.** Peak window opens in 15 min. ▸ Next: Heavy Lifting at 10:00 PM"
+          PRIORITIES[8]=5
+          TAGS[8]="lock,bulb"
 
-          TITLES[9]="THE SHIFT — Block 9: Heavy Lifting (10:00 PM)"
-          MESSAGES[9]="PEAK WINDOW. Hardest material now — derivations, actuarial theory. Go."
+          TITLES[9]="🔥 THE SHIFT · B9: Heavy Lifting"
+          MESSAGES[9]="🔥 **PEAK WINDOW.** Hardest material now — derivations, actuarial theory. Zero distractions. ▸ Next: Break at 11:30 PM"
           PRIORITIES[9]=5
+          TAGS[9]="fire,books"
 
-          TITLES[10]="THE SHIFT — Block 10: Break 1 (11:30 PM)"
-          MESSAGES[10]="Stand, stretch, ice water. Keep 5000K lights ON. Block 4 at 11:45PM."
+          TITLES[10]="🔥 THE SHIFT · B10: Break 1"
+          MESSAGES[10]="🧊 Stand · stretch · ice water. Keep 5000K ON. 15 min — no screens. ▸ Next: Context Switch at 11:45 PM"
           PRIORITIES[10]=4
+          TAGS[10]="person_walking,droplet"
 
-          TITLES[11]="THE SHIFT — Block 11: Context Switch (11:45 PM)"
-          MESSAGES[11]="90min in a DIFFERENT domain from Block 3. Full cognitive reset."
+          TITLES[11]="🔥 THE SHIFT · B11: Context Switch"
+          MESSAGES[11]="🔄 DIFFERENT domain from Block 9 — full context switch. 90min. ▸ Next: Break at 1:15 AM"
           PRIORITIES[11]=4
+          TAGS[11]="books,arrows_counterclockwise"
 
-          TITLES[12]="THE SHIFT — Block 12: Mid-Shift Break (1:15 AM)"
-          MESSAGES[12]="Leave desk completely. Optional light protein snack, no carbs. Back at 1:45AM."
+          TITLES[12]="🔥 THE SHIFT · B12: Mid-Shift Break"
+          MESSAGES[12]="🚶 Leave desk completely. Light protein snack if needed — no carbs. ▸ Next: The Grind at 1:45 AM"
           PRIORITIES[12]=4
+          TAGS[12]="person_walking,coffee"
 
-          TITLES[13]="THE SHIFT — Block 13: The Grind (1:45 AM)"
-          MESSAGES[13]="Active output only — past papers, diagrams, coding. Fight adenosine. 90min."
+          TITLES[13]="🔥 THE SHIFT · B13: The Grind"
+          MESSAGES[13]="⚡ Active output only — past papers · diagrams · coding. Fight adenosine. 90min. ▸ Next: Cold Reset at 3:15 AM"
           PRIORITIES[13]=4
+          TAGS[13]="zap,books"
 
-          TITLES[14]="THE SHIFT — Block 14: Cold Reset (3:15 AM)"
-          MESSAGES[14]="Splash cold water on face. Pace room 5 minutes. Closeout starts 3:30AM."
-          PRIORITIES[14]=4
+          TITLES[14]="🔥 THE SHIFT · B14: Cold Reset"
+          MESSAGES[14]="❄️ **Splash cold water. Pace room 5 minutes.** Final block starts 3:30 AM. ▸ Next: Closeout at 3:30 AM"
+          PRIORITIES[14]=5
+          TAGS[14]="droplet,snowflake"
 
-          TITLES[15]="THE SHIFT — Block 15: Closeout (3:30 AM)"
-          MESSAGES[15]="Low-friction review. At 4:45AM write tomorrow's problem list on paper. Last block."
+          TITLES[15]="🔥 THE SHIFT · B15: Closeout"
+          MESSAGES[15]="📖 Low-friction review. At 4:45 AM write tomorrow's problem list on paper. **Last block.** ▸ Next: Light Shift at 5:00 AM"
           PRIORITIES[15]=4
+          TAGS[15]="books,white_check_mark"
 
-          TITLES[16]="THE SHIFT — Block 16: Light Shift (5:00 AM)"
-          MESSAGES[16]="5000K off → 2700K/red light on. Take 2x Magnesium Bisglycinate now."
+          TITLES[16]="🌙 THE SHIFT · B16: Light Shift"
+          MESSAGES[16]="🌙 5000K off → 2700K/red light. Take 2x Magnesium Bisglycinate now. ▸ Next: Digital Sunset at 5:30 AM"
           PRIORITIES[16]=4
+          TAGS[16]="crescent_moon,pill"
 
-          TITLES[17]="THE SHIFT — Block 17: Digital Sunset (5:30 AM)"
-          MESSAGES[17]="PC off · phone away · read physical book 30min. Post-Study Sleep at 6AM."
+          TITLES[17]="🌙 THE SHIFT · B17: Digital Sunset"
+          MESSAGES[17]="📵 PC off · phone away · read physical book 30min. ▸ Next: Post-Study Sleep at 6:00 AM"
           PRIORITIES[17]=4
+          TAGS[17]="no_mobile_phones,books"
 
-          TITLES[18]="THE SHIFT — Block 18: Post-Study Sleep (6:00 AM)"
-          MESSAGES[18]="The Shift is complete. Cool blackout room, earplugs, 3h sleep. Well done."
+          TITLES[18]="🌙 THE SHIFT · B18: Post-Study Sleep"
+          MESSAGES[18]="🛌 The Shift is complete. Cool blackout room · earplugs · 3h sleep. **You showed up.**"
           PRIORITIES[18]=4
+          TAGS[18]="sleeping_face,trophy"
 
           if [ "$BLOCK" = "all" ]; then
-            BLOCKS_TO_SEND=(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18)
+            BLOCKS_TO_SEND=(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18)
           else
             BLOCKS_TO_SEND=($BLOCK)
           fi
@@ -157,7 +182,8 @@ jobs:
             HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X POST "https://ntfy.sh/${NTFY_TOPIC}" \
               -H "Title: ${TITLES[$b]}" \
               -H "Priority: ${PRIORITIES[$b]}" \
-              -H "Tags: calendar,study" \
+              -H "Tags: ${TAGS[$b]}" \
+              -H "Markdown: true" \
               -d "${MESSAGES[$b]}")
             if [ "$HTTP" = "200" ]; then
               echo "✅ Sent block $b (HTTP $HTTP)"
