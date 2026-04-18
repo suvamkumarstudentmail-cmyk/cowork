@@ -77,7 +77,7 @@ jobs:
           declare -A TITLES MESSAGES PRIORITIES TAGS
 
           TITLES[0]="🌅 THE SHIFT · Briefing: Shift starts in 10 min"
-          MESSAGES[0]="Today: **6 study blocks** · PPL Iron Session · Nap at 2 PM · Night shift opens 10 PM. Drink water first."
+          MESSAGES[0]="Today: 6 study blocks · PPL Iron Session · Nap at 2 PM · Night shift opens 10 PM. Drink water first."
           PRIORITIES[0]=3
           TAGS[0]="alarm_clock,calendar"
 
@@ -87,7 +87,7 @@ jobs:
           TAGS[1]="sunny,pill"
 
           TITLES[2]="🌅 THE SHIFT · B2: Study Block 1+2"
-          MESSAGES[2]="📚 90min active recall → 10min break → 90min practice problems. **Sit down now.** ▸ Next: Lunch at 1:00 PM"
+          MESSAGES[2]="📚 90min active recall → 10min break → 90min practice problems. SIT DOWN NOW. ▸ Next: Lunch at 1:00 PM"
           PRIORITIES[2]=4
           TAGS[2]="books,pencil2"
 
@@ -97,12 +97,12 @@ jobs:
           TAGS[3]="fork_and_knife,no_mobile_phones"
 
           TITLES[4]="🔄 THE SHIFT · B4: Biphasic Nap"
-          MESSAGES[4]="😴 Blackout curtains · earplugs · 90min sleep target. **Protect this.** ▸ Next: Iron Session at 5:00 PM"
+          MESSAGES[4]="😴 Blackout curtains · earplugs · 90min sleep target. Protect this. ▸ Next: Iron Session at 5:00 PM"
           PRIORITIES[4]=4
           TAGS[4]="sleeping_face,zzz"
 
           TITLES[5]="🔄 THE SHIFT · B5: Iron Session"
-          MESSAGES[5]="💪 **PPL workout NOW.** Caffeine cut-off from this point — no exceptions. ▸ Next: Dinner at 6:30 PM"
+          MESSAGES[5]="💪 PPL WORKOUT NOW. Caffeine cut-off from this point — no exceptions. ▸ Next: Dinner at 6:30 PM"
           PRIORITIES[5]=5
           TAGS[5]="muscle,no_entry_sign"
 
@@ -117,12 +117,12 @@ jobs:
           TAGS[7]="memo,pencil2"
 
           TITLES[8]="🔥 THE SHIFT · B8: Environment Lock-in"
-          MESSAGES[8]="🔒 **5000K on · phone in drawer · clear desk.** Peak window opens in 15 min. ▸ Next: Heavy Lifting at 10:00 PM"
+          MESSAGES[8]="🔒 5000K on · phone in drawer · clear desk. LOCK IN. Peak window opens in 15 min. ▸ Next: Heavy Lifting at 10:00 PM"
           PRIORITIES[8]=5
           TAGS[8]="lock,bulb"
 
           TITLES[9]="🔥 THE SHIFT · B9: Heavy Lifting"
-          MESSAGES[9]="🔥 **PEAK WINDOW.** Hardest material now — derivations, actuarial theory. Zero distractions. ▸ Next: Break at 11:30 PM"
+          MESSAGES[9]="🔥 PEAK WINDOW. Hardest material now — derivations, actuarial theory. Zero distractions. ▸ Next: Break at 11:30 PM"
           PRIORITIES[9]=5
           TAGS[9]="fire,books"
 
@@ -147,12 +147,12 @@ jobs:
           TAGS[13]="zap,books"
 
           TITLES[14]="🔥 THE SHIFT · B14: Cold Reset"
-          MESSAGES[14]="❄️ **Splash cold water. Pace room 5 minutes.** Final block starts 3:30 AM. ▸ Next: Closeout at 3:30 AM"
+          MESSAGES[14]="❄️ SPLASH COLD WATER. Pace room 5 minutes. Final block starts 3:30 AM. ▸ Next: Closeout at 3:30 AM"
           PRIORITIES[14]=5
           TAGS[14]="droplet,snowflake"
 
           TITLES[15]="🔥 THE SHIFT · B15: Closeout"
-          MESSAGES[15]="📖 Low-friction review. At 4:45 AM write tomorrow's problem list on paper. **Last block.** ▸ Next: Light Shift at 5:00 AM"
+          MESSAGES[15]="📖 Low-friction review. At 4:45 AM write tomorrow's problem list on paper. LAST BLOCK. ▸ Next: Light Shift at 5:00 AM"
           PRIORITIES[15]=4
           TAGS[15]="books,white_check_mark"
 
@@ -167,7 +167,7 @@ jobs:
           TAGS[17]="no_mobile_phones,books"
 
           TITLES[18]="🌙 THE SHIFT · B18: Post-Study Sleep"
-          MESSAGES[18]="🛌 The Shift is complete. Cool blackout room · earplugs · 3h sleep. **You showed up.**"
+          MESSAGES[18]="🛌 The Shift is complete. Cool blackout room · earplugs · 3h sleep. You showed up."
           PRIORITIES[18]=4
           TAGS[18]="sleeping_face,trophy"
 
@@ -183,7 +183,6 @@ jobs:
               -H "Title: ${TITLES[$b]}" \
               -H "Priority: ${PRIORITIES[$b]}" \
               -H "Tags: ${TAGS[$b]}" \
-              -H "Markdown: true" \
               -d "${MESSAGES[$b]}")
             if [ "$HTTP" = "200" ]; then
               echo "✅ Sent block $b (HTTP $HTTP)"
